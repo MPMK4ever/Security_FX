@@ -11,19 +11,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="520.0" style="-fx-background-color: #173F5F;" styleClass="borderPane_Style"  xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.EncryptionController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="520.0" style="-fx-background-color: #173F5F;" styleClass="borderPane_Style" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.EncryptionController">
    <top>
       <Label text="DATA ENCRYPTION" textFill="WHITE" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets top="15.0" />
          </BorderPane.margin>
          <font>
-            <Font size="28.0" />
+            <Font name="Chalkboard SE Regular" size="24.0" />
          </font>
       </Label>
    </top>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="400.0" prefWidth="520.0" BorderPane.alignment="CENTER">
          <children>
             <TextField fx:id="txt_data" alignment="CENTER" promptText="Enter your text here">
                <font>
@@ -41,7 +41,7 @@
                   <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </TextField>
-            <TextArea fx:id="txtArea_result" prefHeight="200.0" prefWidth="380.0" promptText="Result">
+            <TextArea fx:id="txtArea_result" prefHeight="74.0" prefWidth="515.0" promptText="Result">
                <VBox.margin>
                   <Insets bottom="15.0" left="10.0" right="10.0" top="15.0" />
                </VBox.margin>
@@ -53,7 +53,7 @@
                <children>
                   <RadioButton fx:id="radio_aes" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#radio_aes" text="AES" textFill="WHITE">
                      <font>
-                        <Font size="22.0" />
+                        <Font name="Chalkboard" size="22.0" />
                      </font>
                      <HBox.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" />
@@ -61,7 +61,7 @@
                   </RadioButton>
                   <RadioButton fx:id="radio_3des" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#radio_tdes" text="3DES" textFill="WHITE">
                      <font>
-                        <Font size="22.0" />
+                        <Font name="Chalkboard" size="22.0" />
                      </font>
                      <HBox.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" />
@@ -69,7 +69,7 @@
                   </RadioButton>
                </children>
             </HBox>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="CENTER" prefHeight="36.0" prefWidth="517.0">
                <children>
                   <Button fx:id="btn_encrypt" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#buttonEncrypt" prefHeight="51.0" prefWidth="160.0" text="Encrypt">
                      <HBox.margin>
@@ -95,4 +95,77 @@
          </children>
       </VBox>
    </center>
+   <bottom>
+      <VBox prefHeight="273.0" prefWidth="520.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="523.0" text="CAESAR CIPHER " textFill="#f2f0f0" textOverrun="CLIP">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <font>
+                  <Font name="Chalkboard SE Regular" size="24.0" />
+               </font>
+            </Label>
+            <TextField fx:id="txt_data_cipher" alignment="CENTER" prefHeight="20.0" prefWidth="449.0" promptText="Enter your message here">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </TextField>
+            <TextField fx:id="txt_key_cipher" alignment="CENTER" promptText="Enter the shift value for the message:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </TextField>
+            <TextArea fx:id="txtArea_result_cipher" prefHeight="74.0" prefWidth="515.0" promptText="Result">
+               <font>
+                  <Font size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="15.0" left="10.0" right="10.0" top="15.0" />
+               </VBox.margin>
+            </TextArea>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <!-- <Button fx:id="btn_encrypt_cipher" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#buttonEncryptCipher" prefHeight="51.0" prefWidth="160.0" text="Encrypt">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button> -->
+                  <Button fx:id="btn_encrypt_cipher" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+        mnemonicParsing="false" onMouseClicked="#buttonEncryptCaesar" prefHeight="51.0" prefWidth="160.0"
+        text="Encrypt">
+    <font>
+        <Font size="18.0" />
+    </font>
+    <HBox.margin>
+        <Insets left="10.0" />
+    </HBox.margin>
+    </Button>
+<Button fx:id="btn_decrypt_cipher" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+        mnemonicParsing="false" onMouseClicked="#buttonDecryptCipher" prefHeight="51.0" prefWidth="160.0"
+        text="Decrypt">
+    <font>
+        <Font size="18.0" />
+    </font>
+    <HBox.margin>
+        <Insets left="10.0" />
+    </HBox.margin>
+</Button>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
+   </bottom>
 </BorderPane>

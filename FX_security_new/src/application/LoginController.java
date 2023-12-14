@@ -86,12 +86,14 @@ public class LoginController implements Initializable {
 					new File("/Users/my/git/repository3/FX_security_new/src/application/Encryption.fxml").toURI()
 							.toURL());
 
+			// loading "Encryption.fxml" doesn't work on my computer. (it's keep finding
+			// bin/ instead of src/)
 			// FXMLLoader loader = new FXMLLoader();
 			// loader.setLocation(getClass().getResource("Encryption.fxml"));
 			// System.out.println(this.getClass().getResource("Encryption.fxml"));
-			Parent root = loader.load();
 			// EncryptionController controller = loader.getController();
 
+			Parent root = loader.load();
 			Stage stage = new Stage();
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
