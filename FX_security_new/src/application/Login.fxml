@@ -44,6 +44,7 @@
             <Button fx:id="loginButton" layoutX="31.0" layoutY="225.0" mnemonicParsing="false" onAction="#loginButtonOnAction" prefHeight="27.0" prefWidth="255.0" text="Login" />
             <Button fx:id="cancelButton" layoutX="31.0" layoutY="267.0" mnemonicParsing="false" onAction="#cancelButtonOnAction" prefHeight="27.0" prefWidth="255.0" text="Cancel" />
             <Label fx:id="loginMessageLabel" layoutX="34.0" layoutY="88.0" prefHeight="17.0" prefWidth="253.0" />
+            <Button fx:id="registerButton" layoutX="31.0" layoutY="311.0" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="27.0" prefWidth="255.0" text="Register" />
          </children>
       </AnchorPane>
    </center>

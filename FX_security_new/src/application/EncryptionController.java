@@ -25,7 +25,9 @@ import javax.crypto.spec.SecretKeySpec;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -48,6 +50,8 @@ public class EncryptionController {
 	private RadioButton radio_aes;
 	@FXML
 	private RadioButton radio_3des;
+	@FXML
+	private SplitMenuButton settingsButton;
 
 	// Caesar Cipher
 
@@ -80,6 +84,33 @@ public class EncryptionController {
 
 	public void initialize(URL url, ResourceBundle rb) {
 
+		// Load settings after login
+		String keySize = ConfigManager.loadEncryptionSettings();
+		if (keySize != null) {
+			txt_key.setText(keySize);
+		}
+
+		// Initialize menu items for the SplitMenuButton
+		MenuItem saveItem = new MenuItem("Save Settings");
+		saveItem.setOnAction(event -> saveSettings());
+
+		MenuItem loadItem = new MenuItem("Load Settings");
+		loadItem.setOnAction(event -> loadSettings());
+
+		settingsButton.getItems().addAll(saveItem, loadItem);
+	}
+
+	@FXML
+	public void saveSettings() {
+		String keySize = txt_key.getText();
+		ConfigManager.saveEncryptionSettings(keySize);
+	}
+
+	public void loadSettings() {
+		String keySize = ConfigManager.loadEncryptionSettings();
+		if (keySize != null) {
+			txt_key.setText(keySize);
+		}
 	}
 
 	public static String AESencrypt(String data, String aesSECRET_KEY) {
@@ -367,6 +398,7 @@ public class EncryptionController {
 
 	@FXML
 	private void buttonDecryptCipher(MouseEvent event) {
+
 		// Retrieve the message and shift key from the text fields
 		String message = txt_data_cipher.getText().trim();
 		String keyString = txt_key_cipher.getText().trim();
@@ -392,6 +424,7 @@ public class EncryptionController {
 			// Display the decrypted message in the TextArea
 			txtArea_result_cipher.setText("Decrypted message: " + decryptedMessage);
 		} catch (NumberFormatException e) {
+
 			// Handle cases where the shift key is not a valid integer
 			showAlert("Invalid shift value. Please enter a valid number.", "Decrypt");
 		}

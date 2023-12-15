@@ -3,7 +3,12 @@ package application;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ResourceBundle;
@@ -27,6 +32,9 @@ public class LoginController implements Initializable {
 	private Button cancelButton;
 
 	@FXML
+	private Button registerButton;
+
+	@FXML
 	private Label loginMessageLabel;
 	@FXML
 	private TextField usernameTextField;
@@ -45,6 +53,53 @@ public class LoginController implements Initializable {
 	public void cancelButtonOnAction(ActionEvent event) {
 		Stage stage = (Stage) cancelButton.getScene().getWindow();
 		stage.close();
+	}
+
+	public void registerButtonOnAction(ActionEvent event) {
+		try {
+			String userName1 = usernameTextField.getText();
+			String passWord1 = PasswordField.getText();
+
+			if (userName1.isEmpty()) {
+				loginMessageLabel.setText("Please enter the username first!");
+
+			} else if (passWord1.isEmpty()) {
+				loginMessageLabel.setText("Please enter the password first!");
+
+			} else {
+				boolean isRegistered = registerUser(userName1, passWord1);
+				if (isRegistered) {
+					loginMessageLabel.setText("Registration Successful!");
+				} else {
+					loginMessageLabel.setText("Registration Failed!");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			showAlert("Error", "Registration Error", "An error occurred during registration.");
+		}
+	}
+
+	public boolean registerUser(String userName, String password) {
+		String hashPassword = hashPassword(password);
+
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection connection = DriverManager
+					.getConnection("jdbc:mysql://127.0.0.1:3306/MSwDev2023CloudAndSecurity", "root", "");
+			String sql = "INSERT INTO Users (userName, userPass) VALUES (?, ?)";
+
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+				preparedStatement.setString(1, userName);
+				preparedStatement.setString(2, hashPassword);
+
+				int rowsAffected = preparedStatement.executeUpdate();
+				return rowsAffected > 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public void validateLogin() {
@@ -84,14 +139,8 @@ public class LoginController implements Initializable {
 
 			FXMLLoader loader = new FXMLLoader(
 					new File("/Users/my/git/repository3/FX_security_new/src/application/Encryption.fxml").toURI()
-							.toURL());
-
-			// loading "Encryption.fxml" doesn't work on my computer. (it's keep finding
-			// bin/ instead of src/)
-			// FXMLLoader loader = new FXMLLoader();
-			// loader.setLocation(getClass().getResource("Encryption.fxml"));
-			// System.out.println(this.getClass().getResource("Encryption.fxml"));
-			// EncryptionController controller = loader.getController();
+							.toURL()); // loading "Encryption.fxml" doesn't work on my computer. (it's keep finding
+										// bin/ instead of src/)
 
 			Parent root = loader.load();
 			Stage stage = new Stage();
@@ -122,5 +171,33 @@ public class LoginController implements Initializable {
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 
+	}
+
+	private String hashPassword(String password) {
+		try {
+
+			SecureRandom random = new SecureRandom();
+			byte[] salt = new byte[16];
+			random.nextBytes(salt);
+
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+			md.update(salt);
+
+			md.update(password.getBytes());
+
+			byte[] hashedBytes = md.digest();
+
+			StringBuilder sb = new StringBuilder();
+			for (byte b : hashedBytes) {
+				sb.append(String.format("%02x", b));
+			}
+
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+
+		}
+		return null;
 	}
 }
