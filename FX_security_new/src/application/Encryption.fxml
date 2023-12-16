@@ -25,7 +25,7 @@
       </Label>
    </top>
    <center>
-      <VBox prefHeight="400.0" prefWidth="520.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="vBoxSetting" prefHeight="400.0" prefWidth="520.0" BorderPane.alignment="CENTER">
          <children>
             <TextField fx:id="txt_data" alignment="CENTER" promptText="Enter your text here">
                <font>
@@ -69,7 +69,7 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" />
                      </HBox.margin>
                   </RadioButton>
-                  <SplitMenuButton fx:id="settingsButton" mnemonicParsing="false" text="Settings" textAlignment="CENTER" textFill="#173f5f" textOverrun="CENTER_ELLIPSIS">
+                  <SplitMenuButton fx:id="settingsButton" mnemonicParsing="false" text="Key" textAlignment="CENTER" textFill="#173f5f" textOverrun="CENTER_ELLIPSIS">
                     <items>
                       <MenuItem fx:id="saveButton" mnemonicParsing="false" onAction="#saveSettings" text="Save" />
                       <MenuItem fx:id="loadButton" mnemonicParsing="false" onAction="#loadSettings" text="Load" />

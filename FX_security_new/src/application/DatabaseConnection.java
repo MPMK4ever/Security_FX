@@ -14,7 +14,7 @@ public class DatabaseConnection {
 		String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/MSwDev2023CloudAndSecurity";
 
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver"); // this is the connection string for MySQL
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
 
 		} catch (Exception e) {

@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -21,25 +20,48 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class LoginController implements Initializable {
 
 	@FXML
 	private Button cancelButton;
-
 	@FXML
 	private Button registerButton;
-
 	@FXML
 	private Label loginMessageLabel;
 	@FXML
 	private TextField usernameTextField;
 	@FXML
 	private PasswordField PasswordField;
+	@FXML
+	private AnchorPane anchorPane;
+	@FXML
+	private ColorPicker colorPicker;
+	@FXML
+	private Button saveColorButton;
+	@FXML
+	private Button loadColorButton;
+	@FXML
+	private Label statusMessage;
+
+	private DatabaseConnection databaseConnection;
+
+	@Override
+	public void initialize(URL url, ResourceBundle resourceBundle) {
+
+		databaseConnection = new DatabaseConnection();
+		initializeColorSettings();
+
+	}
 
 	public void loginButtonOnAction(ActionEvent event) {
 
@@ -81,17 +103,20 @@ public class LoginController implements Initializable {
 	}
 
 	public boolean registerUser(String userName, String password) {
-		String hashPassword = hashPassword(password);
+		SecureRandom random = new SecureRandom();
+		byte[] salt = new byte[16];
+		random.nextBytes(salt);
+		String hashedPassword = hashPassword(password, salt);
 
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connection = DriverManager
 					.getConnection("jdbc:mysql://127.0.0.1:3306/MSwDev2023CloudAndSecurity", "root", "");
-			String sql = "INSERT INTO Users (userName, userPass) VALUES (?, ?)";
+			String sql = "INSERT INTO Users (userName, userPass, salt) VALUES (?, ?, ?)";
 
 			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 				preparedStatement.setString(1, userName);
-				preparedStatement.setString(2, hashPassword);
+				preparedStatement.setString(2, hashedPassword);
+				preparedStatement.setBytes(3, salt);
 
 				int rowsAffected = preparedStatement.executeUpdate();
 				return rowsAffected > 0;
@@ -102,36 +127,62 @@ public class LoginController implements Initializable {
 		}
 	}
 
-	public void validateLogin() {
+	private String hashPassword(String password, byte[] salt) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(salt);
+			md.update(password.getBytes());
 
+			byte[] hashedBytes = md.digest();
+			StringBuilder sb = new StringBuilder();
+			for (byte b : hashedBytes) {
+				sb.append(String.format("%02x", b));
+			}
+
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void validateLogin() {
 		DatabaseConnection connectNow = new DatabaseConnection();
 		Connection connectDB = connectNow.getConnection();
 
-		String verifyLogin = "SELECT COUNT(1) FROM Users WHERE userName = '" + usernameTextField.getText()
-				+ "' AND userPass = '" + PasswordField.getText() + "'";
+		String enteredUserName = usernameTextField.getText();
+		String enteredPassword = PasswordField.getText();
 
 		try {
+			String sql = "SELECT userPass, salt FROM Users WHERE userName = ?";
+			try (PreparedStatement preparedStatement = connectDB.prepareStatement(sql)) {
+				preparedStatement.setString(1, enteredUserName);
 
-			Statement statement = connectDB.createStatement();
-			ResultSet queryResult = statement.executeQuery(verifyLogin);
+				try (ResultSet resultSet = preparedStatement.executeQuery()) {
+					if (resultSet.next()) {
+						String storedHash = resultSet.getString("userPass");
+						byte[] storedSalt = resultSet.getBytes("salt");
 
-			while (queryResult.next()) {
-				if (queryResult.getInt(1) == 1) {
-					loginMessageLabel.setText("Welcome!");
-
-					// Open the Encryption.fxml file after successful login
-					openEncryptionFXML();
-
-				} else {
-					loginMessageLabel.setText("Invalid Login. Please try again!");
+						if (storedSalt != null) {
+							String hashedEnteredPassword = hashPassword(enteredPassword, storedSalt);
+							if (hashedEnteredPassword != null && hashedEnteredPassword.equals(storedHash)) {
+								loginMessageLabel.setText("Welcome!");
+								openEncryptionFXML();
+							} else {
+								loginMessageLabel.setText("Invalid Login. Please try again!");
+							}
+						} else {
+							loginMessageLabel.setText("Salt not found for user.");
+						}
+					} else {
+						loginMessageLabel.setText("Username not found");
+					}
 				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 
 		}
-
 	}
 
 	private void openEncryptionFXML() {
@@ -168,36 +219,51 @@ public class LoginController implements Initializable {
 		alert.showAndWait();
 	}
 
-	@Override
-	public void initialize(URL url, ResourceBundle resourceBundle) {
+	private void initializeColorSettings() {
+		colorPicker.setOnAction(event -> {
+			Color myColor = colorPicker.getValue();
+			anchorPane.setBackground(new Background(new BackgroundFill(myColor, null, null)));
+			statusMessage.setText("Color selected: " + myColor.toString());
+		});
 
-	}
+		saveColorButton.setOnAction(event -> {
+			Color myColor = colorPicker.getValue();
+			new ColorSetting(databaseConnection.getConnection()).saveColorToDatabase(myColor);
+			statusMessage.setText("Color saved successfully!");
+		});
 
-	private String hashPassword(String password) {
-		try {
-
-			SecureRandom random = new SecureRandom();
-			byte[] salt = new byte[16];
-			random.nextBytes(salt);
-
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-			md.update(salt);
-
-			md.update(password.getBytes());
-
-			byte[] hashedBytes = md.digest();
-
-			StringBuilder sb = new StringBuilder();
-			for (byte b : hashedBytes) {
-				sb.append(String.format("%02x", b));
+		loadColorButton.setOnAction(event -> {
+			Color loadedColor = new ColorSetting(databaseConnection.getConnection()).loadColorFromDatabase();
+			if (loadedColor != null) {
+				colorPicker.setValue(loadedColor);
+				anchorPane.setBackground(new Background(new BackgroundFill(loadedColor, null, null)));
+				statusMessage.setText("Color loaded successfully!");
 			}
-
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-
-		}
-		return null;
+		});
 	}
+
+	@FXML
+	private void handleColorPickerAction(ActionEvent event) {
+		Color myColor = colorPicker.getValue();
+		anchorPane.setBackground(new Background(new BackgroundFill(myColor, null, null)));
+		statusMessage.setText("Color selected: " + myColor.toString());
+	}
+
+	@FXML
+	private void handleSaveColorAction(ActionEvent event) {
+		Color myColor = colorPicker.getValue();
+		new ColorSetting(databaseConnection.getConnection()).saveColorToDatabase(myColor);
+		statusMessage.setText("Color saved successfully!");
+	}
+
+	@FXML
+	private void handleLoadColorAction(ActionEvent event) {
+		Color loadedColor = new ColorSetting(databaseConnection.getConnection()).loadColorFromDatabase();
+		if (loadedColor != null) {
+			colorPicker.setValue(loadedColor);
+			anchorPane.setBackground(new Background(new BackgroundFill(loadedColor, null, null)));
+			statusMessage.setText("Color loaded successfully!");
+		}
+	}
+
 }
